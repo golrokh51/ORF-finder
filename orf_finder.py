@@ -3,7 +3,7 @@
 import sys
 import re 
 filefasta = sys.argv[1]
- 
+ntSize = 3
 try:
 	f = open(filefasta)
 except IOError:
@@ -32,9 +32,9 @@ def translate(seq):
 		'TGC':'C', 'TGT':'C', 'TGA':'_', 'TGG':'W', 
 	} 
 	protein ="" 
-	if len(seq)%3 == 0: 
-		for i in range(0, len(seq), 3): 
-			codon = seq[i:i + 3] 
+	if len(seq) % ntSize == 0: 
+		for i in range(0, len(seq), ntSize): 
+			codon = seq[i:i + ntSize] 
 			protein+= table[codon] 
 	protein = protein[:-1]
 	return protein 
@@ -72,7 +72,7 @@ def inversComplement(input):
 # print seq
 def getORF(seq):
 	dicPath = dict()
-	for i in range (0, len(seq) - 3):
+	for i in range (0, len(seq) - ntSize):
 		tmpSeq = seq[i:]
 		p = re.finditer(r'(ATG((?:.{3})+?)T(?:AG|AA|GA))', tmpSeq)
 		if p:
@@ -81,9 +81,9 @@ def getORF(seq):
 					aa = translate(e.group())
 					if not '_' in aa:
 						pos = 1 + seq.index(e.group())
-						frame = pos % 3
-						if frame == 0:
-							frame = 3			
+						frame = pos % ntSize
+						if frame == ntSize:
+							frame = ntSize			
 						dicPath[e.group()] = str(pos) + "\t" + str(len(e.group())) + "\t" + str(frame)
 			p = None
 
@@ -113,7 +113,7 @@ for line in f:
 frame=0
  
 #EXECUTE THE ORFFINDER FUNCTION
-print "ID\tstrand\tORF\tstart_pos\tORF_length\tframe\tAA"
+print "#ID\tstrand\tORF\tstart_pos\tORF_length\tframe\tAA"
 for i in seqs.items():
 	header= i[0]
 	seq = i[1]
